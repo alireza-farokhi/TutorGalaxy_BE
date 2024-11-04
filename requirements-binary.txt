@@ -1,0 +1,2 @@
+--only-binary :all: grpcio>=1.67.1
+--only-binary :all: protobuf>=4.24.1 

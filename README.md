@@ -59,6 +59,13 @@ A backend server for the TutorGalaxy application, providing tutoring services, S
 3. **Install dependencies:**
 
     ```bash
+    # Upgrade pip first
+    python -m pip install --upgrade pip
+
+    # Install binary dependencies
+    pip install -r requirements-binary.txt
+
+    # Install remaining dependencies
     pip install -r requirements.txt
     ```
 
