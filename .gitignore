@@ -1,0 +1,60 @@
+# Virtual Environment
+myenv/
+venv/
+env/
+.venv/
+
+# Environment Variables and Secrets
+.env
+.env.save
+payment/.env
+*.env
+.env.local
+.env.*.local
+auth2.py
+teacherai-387618-e26464d87407.json
+*credentials*.json
+*service-account*.json
+
+# Python Cache Files
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+**/*.py[cod]
+**/*$py.class
+*.pyc
+**/*.pyc
+
+# Database Files
+dbfiles/
+db.yml
+*.db
+*.sqlite3
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# IDE Settings
+.idea/
+*.swp
+*.swo
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Log Files
+*.log
+logs/
+log/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+Utils
+Utils/
+.cache_ggshield
