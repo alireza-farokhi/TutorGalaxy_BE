@@ -45,8 +45,8 @@ A backend server for the TutorGalaxy application, providing tutoring services, S
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/yourusername/TutorGalaxy-BE-Server.git
-    cd TutorGalaxy-BE-Server
+    git clone https://github.com/FarzamHejaziK/TutorGalaxy_BE.git
+    cd TutorGalaxy_BE
     ```
 
 2. **Set up a virtual environment:**
