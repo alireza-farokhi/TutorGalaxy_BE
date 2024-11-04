@@ -2,7 +2,7 @@
 
 A backend server for the TutorGalaxy application, providing tutoring services, Stripe payment integration, Google Text-to-Speech, and code execution.
 
-> **Note**: This is the backend repository. The frontend repository can be found at [TutorGalaxy-FE](https://github.com/yourusername/TutorGalaxy-FE).
+> **Note**: This is the backend repository. The frontend repository can be found at [TutorGalaxy-FE](https://github.com/FarzamHejaziK/TutorGalaxy_FE).
 
 
 # Table of Contents
