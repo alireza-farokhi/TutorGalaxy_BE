@@ -1,19 +1,13 @@
-from flask import Flask, redirect, url_for, request, jsonify, stream_with_context, Blueprint
-from flask_dance.contrib.google import make_google_blueprint, google
+from flask import request, jsonify, Blueprint, Response, make_response
 from tutor_agent.Conv_handler_improved_mem import TeachingAssistant_stream
-from flask_login import UserMixin, LoginManager, logout_user, login_user, login_required, current_user
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
-from flask import render_template, make_response, stream_with_context, Response
 from init_agent.Conv_Creator_basics import ConvCreator_stream
 import config
-from text_to_speech.TTS import TTS_blueprint
-import random
-import uuid 
-import logging
 from tinydb import Query
 from datetime import datetime
 import pytz
-import sys
+import uuid 
+import logging
+import random
 
 public_blueprint = Blueprint('public', __name__)
 
@@ -94,10 +88,11 @@ def Conv_first_massage_public():
 @public_blueprint.route('/api/v1/Conv_next_massage_public', methods=['POST'])
 def Conv_next_massage_public():
     current_user_email = 'user@public.com'
-    response = config.user_table.get_item(Key={'email': current_user_email})
-    if 'Item' not in response:
+    User_Query = Query()
+    user = config.user_table.get(User_Query.email == current_user_email)
+    if not user:
         return jsonify({"error": "User not found"}), 404
-    user = response['Item']
+
     data = request.get_json()
     user_input = data['user_input']
     conv_id = data['id']
@@ -113,20 +108,22 @@ def Conv_next_massage_public():
 @public_blueprint.route('/api/v1/get_response_stream_public', methods=['POST'])
 def get_response_public():
     current_user_email = 'user@public.com'
-    response = config.user_table.get_item(Key={'email': current_user_email})
-    if 'Item' not in response:
+    User_Query = Query()
+    user = config.user_table.get(User_Query.email == current_user_email)
+    if not user:
         return jsonify({"error": "User not found"}), 404
-    user = response['Item']
+
     data = request.get_json()
     user_input = data['user_input']
     topic_id = data['id']
-    response = config.topics_table.get_item(
-            Key={
-                'userId': current_user_email,
-                'topics_id': topic_id,
-            }
-            )
-    topic = response['Item']
+    
+    Topic_Query = Query()
+    topic = config.topics_table.get(
+        (Topic_Query.userId == current_user_email) & 
+        (Topic_Query.topics_id == topic_id)
+    )
+    if not topic:
+        return jsonify({"error": "Topic not found"}), 404
     
     if len(topic.get('messages',[])) >= config.maximum_chat_messages_without_login:
         response = {
@@ -189,23 +186,33 @@ def get_created_topic_public():
     current_user_email = 'user@public.com'
     data = request.get_json()
     conv_id = data['id']
-    conv = config.conversations_table.get_item(
-        Key={
-                    'conv_id':conv_id, 
-                }
-    )['Item']
+    
+    Conv_Query = Query()
+    conv = config.conversations_table.get(Conv_Query.conv_id == conv_id)
+    if not conv:
+        logger.error(f"Conversation not found: {conv_id}")
+        return jsonify({"error": "Conversation not found"}), 404
+        
     topic_id = conv.get('topic_id')
-    last_topic = config.topics_table.get_item(
-            Key={
-                    'userId': current_user_email,  # replace with your userId
-                    'topics_id': topic_id  # replace with your topicId
-                }
-            )['Item']
+    Topic_Query = Query()
+    last_topic = config.topics_table.get(
+        (Topic_Query.userId == current_user_email) & 
+        (Topic_Query.topics_id == topic_id)
+    )
+    if not last_topic:
+        logger.error(f"Topic not found: {topic_id}")    
+        return jsonify({"error": "Topic not found"}), 404
+
     category = last_topic.get('category', "1")
-    icons = config.asset_table.get_item(
-            Key={
-                    'asset_name': 'icon',  # replace with your userId
-                })['Item']
+    Asset_Query = Query()
+    icons = config.asset_table.get(Asset_Query.asset_name == 'icon')
+
+    # Ensure icons is a dictionary and handle missing keys gracefully
+    if not isinstance(icons, dict):
+        icons = {}
+
+    icon_value = icons.get(category, icons.get('1', None))
+
     return jsonify({
         "Topic": last_topic['topic'], 
         "Goal": last_topic['goal'], 
@@ -213,36 +220,37 @@ def get_created_topic_public():
         "lang_id": last_topic['langid'], 
         "lang_name": last_topic["lang_name"], 
         "monaco_name": last_topic["monaco_name"], 
-        'icon' : icons.get(category, icons['1'])  
-        })
-
+        'icon': icon_value
+    })
 
 @public_blueprint.route('/api/v1/assign_topic_to_user', methods=['POST'])
 def get_created_topic():
-    current_user_email = get_jwt_identity()
+    current_user_email = request.args.get('email')  
     public_user_email = 'user@public.com'
-    ## retrive topic
     data = request.get_json()
     topic_id = data['id']
-    response = config.topics_table.get_item(
-            Key={
-                'userId': public_user_email,
-                'topics_id': topic_id,
-            }
-            )
-    topic = response['Item']
-    ## update topic
-    topic['userId'] = current_user_email 
-    config.topics_table.put_item(Item=topic)
-    config.user_table.update_item(
-        Key={
-            'email': current_user_email,  # replace with the actual userId
-        },
-        UpdateExpression="SET created_topics = list_append(created_topics, :i)",
-        ExpressionAttributeValues={
-            ':i': [topic_id],  # replace with the actual new topic ID
-        },
-        ReturnValues="UPDATED_NEW"
+    
+    Topic_Query = Query()
+    topic = config.topics_table.get(
+        (Topic_Query.userId == public_user_email) & 
+        (Topic_Query.topics_id == topic_id)
     )
+    if not topic:
+        return jsonify({"error": "Topic not found"}), 404
+
+    # Update topic's userId
+    topic['userId'] = current_user_email 
+    config.topics_table.upsert(topic, 
+        (Topic_Query.userId == current_user_email) & 
+        (Topic_Query.topics_id == topic_id)
+    )
+    
+    # Update user's created_topics
+    User_Query = Query()
+    user = config.user_table.get(User_Query.email == current_user_email)
+    if user:
+        created_topics = user.get('created_topics', [])
+        created_topics.append(topic_id)
+        config.user_table.update({'created_topics': created_topics}, User_Query.email == current_user_email)
 
     return jsonify({'message': 'Success'}), 200
