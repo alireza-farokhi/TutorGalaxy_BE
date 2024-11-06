@@ -73,7 +73,8 @@ A backend server for the TutorGalaxy application, providing tutoring services, S
 
     **Required Environment Variables:**
     - **OpenAI API Keys (comma-separated)**  
-      `OPENAI_API_KEYS=your-api-key-1,your-api-key-2`
+      `OPENAI_API_KEYS=your-api-key-1,your-api-key-2`  
+      >Note: You can only add one API key
 
     **Optional Environment Variables:**
     - **Stripe Keys (for payment features)**  
