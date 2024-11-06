@@ -126,7 +126,7 @@ Tutor Galaxy is a personal tutoring service, and its key differentiator from **C
 
 # Architecture Overview
 Tutor Galaxy has two conversational agents. The first agent is the Tutor Initialization Agent, which sets up the tutoring process. After that, the Tutor Agent takes over and creates a personalized tutoring session for the user. The following is the block diagram of the Tutor Galaxy service.
-<img width="1877" alt="image" src="https://github.com/user-attachments/assets/3eba770d-72d5-4e72-8201-2fda8d321044">
+<img width="1877" alt="image" src="https://github.com/FarzamHejaziK/TutorGalaxy_BE/blob/main/images/git-be-1.png">
 
 
 
@@ -151,7 +151,7 @@ The **Plan Executor Agent** is responsible for following the developed plan, ans
 
 The main challenge here is **maintaining focus on the plan, as the user may ask numerous questions during each step. This makes it increasingly difficult for the tutor to stick to the original plan as the conversation becomes lengthy and complex.**
 
-<img width="990" alt="image" src="https://github.com/user-attachments/assets/7cd4d7e9-e06a-4e21-a393-2cf153853f06">
+<img width="990" alt="image" src="https://github.com/FarzamHejaziK/TutorGalaxy_BE/blob/main/images/git-be-2.png">
 
 
 
@@ -170,7 +170,7 @@ The first module in the agent is the **"Next Action Predictor"**, which determin
 
 Once the next action is predicted, the **"Update System Prompt"** module updates the system prompt, and the system responds to the user in alignment with the suggested action. After the system message is generated, the **"Plan Progress Tracker Module"** checks the conversation and updates the plan pointer accordingly.
 
-<img width="1599" alt="image" src="https://github.com/user-attachments/assets/b78afbb4-5943-4cf3-b9e5-00cd5e99db6e">
+<img width="1599" alt="image" src="https://github.com/FarzamHejaziK/TutorGalaxy_BE/blob/main/images/git-be-3.png">
 
 
 # Additional Info and Features
